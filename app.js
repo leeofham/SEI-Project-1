@@ -4,14 +4,19 @@ const section1 = document.querySelector('.grid-one')
 const section2 = document.querySelector('.grid-two')
 const gridWidth = 10
 const gridHeight = 10
+const shipLength = 3
+const numShips = 5
+let noGoStart
+let noGoLeft
+let noGoRight
+let noGoEnd
+let noGoLength
 let grid1Divs
 let grid2Divs
 let randomNum
 let column
 let row
 let horizOrVert
-const shipLength = 3
-const numShips = 5
 
 for(let i = 0; i<100; i++){
   grid1Divs = document.createElement('div')
@@ -25,11 +30,11 @@ const grid1 = section1.querySelectorAll('div')
 const grid2 = section2.querySelectorAll('div')
 
 function placeCompShips(){
-  for(let i = 0; i<numShips; i++) {
+  // for(let i = 0; i<numShips; i++) {
     randomNumber()
     horizontalOrVertical()
-    console.log((i + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
-  }
+    console.log((randomNum + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
+  // }
 }
 
 function randomNumber(){
@@ -44,7 +49,8 @@ function randomNumber(){
 }
 
 function horizontalOrVertical(){
-  horizOrVert = Math.ceil(Math.random() * 2)
+  horizOrVert = 1
+  // Math.ceil(Math.random() * 2)
   // console.log(horizOrVert + ' 1 = horizontal / 2 = vertical')
 
   if(horizOrVert === 1){
@@ -62,6 +68,7 @@ function generateShipHorizontal(){
   }
   // checkIfShipHorizontal()
   for(let i = 0; i < shipLength; i++){
+    noGoZoneHorizontal()
     grid2[randomNum + i].classList.add('ship')
   }
 }
@@ -76,24 +83,42 @@ function generateShipVertically(){
   }
 }
 
+function noGoZoneHorizontal(){
+  noGoStart = (randomNum - gridWidth - 1)
+  noGoEnd = (randomNum + gridWidth - 1)
+  noGoLeft = randomNum -1
+  noGoRight = randomNum + shipLength
+  noGoLength = shipLength + 2
 
-// want to check if any of squares going to be taken up contain ship class
-// function checkIfShipHorizontal(){
-//   for(let i = 0; i < shipLength; i++){
-//     if(grid2[randomNum + i].classList.contains('ship')){
-//       randomNumber()
-//     }
-//   }
-// }
+  grid2[noGoStart].classList.add('no-go')
+  grid2[noGoLeft].classList.add('no-go')
+  grid2[noGoRight].classList.add('no-go')
+  grid2[noGoEnd].classList.add('no-go')
+
+  grid2[randomNum + shipLength].classList.add('no-go')
+  if(noGoStart % gridWidth === gridWidth - 1){
+    noGoStart = 0
+    noGoLength --
+  }
+}
+
+// length of no go = shiplength + 2
+// start of no go point will be index - width - 1
 //
-// function checkIfShipVertical(){
-//   for(let i = 0; i < shipLength; i++){
-//     if(grid2[randomNum + (i * 10)].classList.contains('ship')){
-//       randomNumber()
-//     }
-//   }
-// }
-
+//if(start of no go % width === width - 1)
+// start = 0
+// length --
+//
+// start + length + index+10+ index+10 - length - index-10
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 grid1[8].classList.add('ship')
 grid1[18].classList.add('ship')
@@ -109,7 +134,6 @@ function hitOrMiss(square){
     return false
   }
 }
-
 
 function gamePlay(){
   placeCompShips()
