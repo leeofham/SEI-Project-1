@@ -80,17 +80,13 @@ function generateShipHorizontal(){
   while((gridWidth - column) < shipLength){
     placeCompShips()
   }
-  noGoZoneHorizontal()
-  for(let i = 0; i < shipLength; i++){
-    grid2[randomNum + i].classList.remove('no-go')
-    grid2[randomNum + i].classList.add('ship')
-  }
 }
 
 function generateShipVertically(){
   while((gridHeight - row) < shipLength) {
     placeCompShips()
   }
+
   for(let i = 0; i < shipLength; i++){
     grid2[randomNum + (i * 10)].classList.add('ship')
   }
@@ -205,9 +201,6 @@ function hitOrMiss(grid, index){
 function gamePlay(){
   turn = 0
   console.log(turn)
-  placeCompShips()
-  placeCompShips()
-  placeCompShips()
   placeCompShips()
   placeCompShips()
   userTurn()
