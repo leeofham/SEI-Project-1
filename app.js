@@ -17,6 +17,9 @@ let noGoTopLeft
 let noGoLeft
 let noGoRight
 let noGoBottomLeft
+let noGoTopRight
+let noGoTopMid
+let noGoBottomMid
 let noGoLength
 let grid1Divs
 let grid2Divs
@@ -64,16 +67,17 @@ function compTurn(){
 }
 
 function placeCompShips(){
-  while(compShipCount < 3){
+  // while(compShipCount < 3){
     randomNumber()
     horizontalOrVertical()
     console.log((randomNum + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
-    compShipCount++
-  }
+    // compShipCount++
+  // }
 }
 
 function randomNumber(){
-  randomNum = Math.floor(Math.random() * grid2.length)
+  randomNum = 0
+  // Math.floor(Math.random() * grid2.length)
 
   column = randomNum % gridWidth
 
@@ -105,7 +109,7 @@ function generateShipVertically(){
   while((gridHeight - row) < shipLength) {
     placeCompShips()
   }
-
+  noGoZoneVertical()
   for(let i = 0; i < shipLength; i++){
     grid2[randomNum + (i * 10)].classList.add('ship')
   }
@@ -200,6 +204,29 @@ function noGoZoneHorizontal(){
       grid2[noGoTopLeft + i].classList.add('no-go')
       grid2[noGoBottomLeft + i].classList.add('no-go')
     }
+  }
+}
+
+function noGoZoneVertical(){
+  noGoLength = (shipLength + 2)
+
+  noGoTopLeft = (randomNum - gridWidth - 1)
+  noGoTopRight = (randomNum - gridWidth + 1)
+  noGoTopMid = randomNum - gridWidth
+  noGoBottomMid = (randomNum + (shipLength * 10))
+  noGoRight = randomNum + shipLength
+
+  // TOP LEFT
+  if(randomNum === 0){
+    noGoLength = (shipLength + 1)
+    noGoTopRight = randomNum + 1
+
+    grid2[noGoBottomMid].classList.add('no-go')
+
+    for(let i=0; i < noGoLength; i++){
+      grid2[noGoTopRight + (i * 10)].classList.add('no-go')
+    }
+    // bottom left corner
   }
 }
 
