@@ -2,10 +2,17 @@ console.log('JS loaded')
 
 const section1 = document.querySelector('.grid-one')
 const section2 = document.querySelector('.grid-two')
+const gameMessage = document.querySelector('.game-message')
+const button = document.querySelector('button')
+
 const gridWidth = 10
 const gridHeight = 10
 const shipLength = 3
 // const numShips = 5
+const compShotArray = []
+
+let turn = 0
+let compShot
 let noGoTopLeft
 let noGoLeft
 let noGoRight
@@ -17,9 +24,14 @@ let randomNum
 let column
 let row
 let horizOrVert
-let turn
-let compShot
-const compShotArray = []
+let userHit = 0
+let compHit = 0
+let gameInPlay = true
+let shipCount = 0
+let compShipCount = 0
+let leftToRight = true
+
+// CREATE GRID
 
 for(let i = 0; i<100; i++){
   grid1Divs = document.createElement('div')
@@ -31,6 +43,8 @@ for(let i = 0; i<100; i++){
 
 const grid1 = section1.querySelectorAll('div')
 const grid2 = section2.querySelectorAll('div')
+
+// COMPUTER FUNCTIONS
 
 function compShotGener(){
   compShot = Math.floor(Math.random() * 100)
@@ -44,17 +58,18 @@ function compTurn(){
     } else{
       compShotArray.push(compShot)
       turn ++
-      console.log(`comp ${turn} number`)
-      console.log(`comp shot = ${compShot} and the array = ${compShotArray}`)
       hitOrMiss(grid1, compShot)
     }
   }
 }
 
 function placeCompShips(){
-  randomNumber()
-  horizontalOrVertical()
-  console.log((randomNum + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
+  while(compShipCount < 3){
+    randomNumber()
+    horizontalOrVertical()
+    console.log((randomNum + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
+    compShipCount++
+  }
 }
 
 function randomNumber(){
@@ -66,7 +81,7 @@ function randomNumber(){
 }
 
 function horizontalOrVertical(){
-  horizOrVert = 1
+  horizOrVert = 2
   // Math.ceil(Math.random() * 2)
 
   if(horizOrVert === 1){
@@ -79,6 +94,10 @@ function horizontalOrVertical(){
 function generateShipHorizontal(){
   while((gridWidth - column) < shipLength){
     placeCompShips()
+  }
+  for(let i = 0; i < shipLength; i++){
+    grid2[randomNum + (i)].classList.add('ship')
+    // noGoZoneHorizontal()
   }
 }
 
@@ -184,31 +203,110 @@ function noGoZoneHorizontal(){
   }
 }
 
-grid1[8].classList.add('ship')
-grid1[18].classList.add('ship')
-grid1[28].classList.add('ship')
+// USER FUNCTIONS
+
+function placeUserShipHorizontal(grid, index){
+  if((leftToRight) && ((index % gridWidth) < 8)){
+    for(let i = 0; i< shipLength; i++){
+      grid1[index + i].classList.add('ship')
+    }
+    clearGameMessage()
+    shipCount++
+  } else {
+    gameMessage.innerText = 'Place ship again, incorrect space.'
+  }
+  userShipCount(shipCount)
+}
+
+function placeUserShipVertical(grid, index){
+  if(!leftToRight && (Math.floor(index/gridWidth) < 8)){
+    for(let i = 0; i< shipLength; i++){
+      grid1[index + (i * 10)].classList.add('ship')
+    }
+    clearGameMessage()
+    shipCount++
+  } else {
+    gameMessage.innerText = 'Place ship again, incorrect space.'
+  }
+  userShipCount(shipCount)
+}
+
+function userShipCount(shipCount){
+  if(shipCount === 3){
+    userTurn()
+    gameMessage.innerText = 'Take your shot'
+  }
+}
+
+function clearGameMessage(){
+  gameMessage.innerText = ''
+}
+
+function userShot(grid, index){
+  if(gameInPlay === false || grid2[index].classList.contains('miss')) return false
+  console.log('clicked', index)
+  console.log('row' + Math.floor(index/gridWidth))
+  hitOrMiss(grid2, index)
+  turn++
+  console.log(`user ${turn} number`)
+  compShotGener()
+}
+
+function hitCounter(grid){
+  compShipCount = 3
+  shipCount = 3
+
+  if(grid === grid1){
+    compHit++
+    console.log(`This is the comp hit ${compHit}`)
+  } else{
+    userHit++
+    console.log(`This is the user hit ${userHit}`)
+  }
+  if((userHit === (compShipCount * shipLength)) || (compHit === (shipCount * shipLength))){
+    win()
+  }
+}
 
 function hitOrMiss(grid, index){
   if(grid[index].classList.contains('ship')){
     grid[index].classList.remove('ship')
     grid[index].classList.add('hit')
+    hitCounter(grid)
   } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') ||     grid[index].classList.contains('no-go')) {
     grid[index].classList.remove('no-go')
     grid[index].classList.add('miss')
+    grid[index].innerText = 'X'
+  }
+}
+
+function win(){
+  gameInPlay = false
+  if(userHit === (compShipCount * shipLength)){
+    gameMessage.innerText = 'You have won!!'
+  } else{
+    gameMessage.innerText = 'You lose'
   }
 }
 
 function gamePlay(){
   turn = 0
-  console.log(turn)
+  gameInPlay = true
   placeCompShips()
-  placeCompShips()
-  userTurn()
-
-  // grab buttons
+  placeShips()
+}
+// grab buttons
+function placeShips(){
   grid1.forEach((square1, index) => {
     square1.addEventListener('click', () => {
       console.log('clicked', index)
+      if(shipCount === 3){
+        return false
+      } else if(leftToRight){
+        placeUserShipHorizontal(grid1, index)
+      } else{
+        placeUserShipVertical(grid1, index)
+      }
     })
   })
 }
@@ -216,13 +314,19 @@ function gamePlay(){
 function userTurn(){
   grid2.forEach((square2, index) => {
     square2.addEventListener('click', () => {
-      console.log('clicked', index)
-      hitOrMiss(grid2, index)
-      turn++
-      console.log(`user ${turn} number`)
-      compShotGener()
+      userShot(grid2, index)
     })
   })
 }
+
+button.addEventListener('click', () => {
+  if(leftToRight){
+    leftToRight = false
+    button.innerText = 'Vertical'
+  } else{
+    leftToRight = true
+    button.innerText = 'Horizontal'
+  }
+})
 
 gamePlay()

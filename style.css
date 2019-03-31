@@ -10,13 +10,22 @@ body{
 
 main{
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
+  flex-direction: column;
   width: 100%;
   height: 100%;
 }
 
-section{
+.grids{
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.grid{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -24,11 +33,32 @@ section{
   height: 400px;
 }
 
-
 section div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 40px;
   height: 40px;
   border: solid black 1px;
+}
+
+.gameplay{
+  margin-top: 30px;
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+  height: 20%;
+  justify-content: space-around;
+  align-items: center;
+}
+
+button{
+  width: 110px;
+  height: 50px;
+  font-size: 20px;
+  border-radius: 5px;
+  border: solid black 1px;
+  background-color: white;
 }
 
 .ship{
@@ -40,7 +70,7 @@ section div {
 }
 
 .miss{
-  background-color: blue;
+  font-size: 45px;
 }
 
 .no-go{
