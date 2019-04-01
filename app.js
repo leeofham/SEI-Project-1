@@ -1,234 +1,187 @@
 console.log('JS loaded')
 
+// GAME SETTINGS VARIABLES
 const section1 = document.querySelector('.grid-one')
 const section2 = document.querySelector('.grid-two')
 const gameMessage = document.querySelector('.game-message')
 const button = document.querySelector('button')
+const shipDropDown = document.querySelector('#ship-selection')
+const width = 10
 
-const gridWidth = 10
-const gridHeight = 10
-const shipLength = 3
-// const numShips = 5
-const compShotArray = []
+const grid1 = []
+const grid2 = []
 
-let turn = 0
-let compShot
-let grid1Divs
-let grid2Divs
-let randomNum
-let column
-let row
-let horizOrVert
-let userHit = 0
-let compHit = 0
+const compShipLength = [5, 4, 3, 3, 2]
+const userShipLength = [5, 4, 3, 3, 2]
+const computerShotArray = []
+
 let gameInPlay = true
-let shipCount = 0
-let compShipCount = 3
-let leftToRight = true
-let orientation
+let userShipHorizontal = true
+let turn = 0
+
+// column = index % width
+// row = Math.floor(index/width)
 
 // CREATE GRID
+for(let i = 0; i<width ** 2; i++){
+  const grid1Div = document.createElement('div')
+  section1.appendChild(grid1Div)
+  grid1.push(grid1Div)
 
-for(let i = 0; i<100; i++){
-  grid1Divs = document.createElement('div')
-  section1.appendChild(grid1Divs)
-
-  grid2Divs = document.createElement('div')
-  section2.appendChild(grid2Divs)
+  const grid2Div = document.createElement('div')
+  section2.appendChild(grid2Div)
+  grid2.push(grid2Div)
 }
 
-const grid1 = section1.querySelectorAll('div')
-const grid2 = section2.querySelectorAll('div')
+// Clears the game Message
+// function clearGameMessage(){
+//   gameMessage.innerText = ''
+// }
+//
 
-// COMPUTER FUNCTIONS
+// get random orientation;
+// gather ship indices into an array
+// add no go zone
+// check if can lay ship
+// lay ship indices onto board
 
-function compShotGener(){
-  compShot = Math.floor(Math.random() * 100)
-  compTurn()
+function getShipOrientation(){
+  return Math.floor(Math.random() * 2) ? 1 : 10
 }
 
-function compTurn(){
-  if(turn % 2 === 1){
-    if(compShotArray.includes(compShot)){
-      compShotGener()
-    } else{
-      compShotArray.push(compShot)
-      turn ++
-      hitOrMiss(grid1, compShot)
+function getShipArray(index, length, orientation){
+  const shipIndexes = []
+  for(let i = 0; i < length; i++){
+    shipIndexes.push(index + (i * orientation))
+  }
+  return shipIndexes
+}
+
+function checkIfCanLayShip(index, length, orientation, grid){
+  if(orientation === 1 && width - (index % width) < length) return false
+  if(orientation === 10 && width - Math.floor(index/width) <= (width - length)) return false
+
+  // loop through and check that all the squares do not contain ship or no-go
+  for(let i = 0; i<length; i++) {
+    if(grid[index + (i * orientation)].classList.contains('ship') ||
+    grid[index + (i * orientation)].classList.contains('no-go')) return false
+  }
+
+  return true
+}
+
+// get the no go zone indexes
+function getNoGoIndexes(shipIndexes, grid) {
+  const noGoZoneIndexes = []
+  shipIndexes.forEach(shipIndex => {
+    // left
+    if(shipIndex % width > 0 && !shipIndexes.includes(shipIndex - 1)) noGoZoneIndexes.push(shipIndex - 1)
+    // right
+    if(shipIndex % width < width - 1 && !shipIndexes.includes(shipIndex + 1)) noGoZoneIndexes.push(shipIndex + 1)
+    // top
+    if(Math.floor(shipIndex/width) > 0 && !shipIndexes.includes(shipIndex - width)) noGoZoneIndexes.push(shipIndex - width)
+    // bottom
+    if(Math.floor(shipIndex/width) < width - 1 && !shipIndexes.includes(shipIndex + width)) noGoZoneIndexes.push(shipIndex + width)
+
+    // top left
+    if(
+      shipIndex % width > 0 && Math.floor(shipIndex/width) > 0 &&
+      !noGoZoneIndexes.includes(shipIndex - width - 1)
+    ) {
+      noGoZoneIndexes.push(shipIndex - width - 1)
     }
-  }
+    // top right
+    if(
+      shipIndex % width < width - 1 && Math.floor(shipIndex/width) > 0 &&
+      !noGoZoneIndexes.includes(shipIndex - width + 1)
+    ) {
+      noGoZoneIndexes.push(shipIndex - width + 1)
+    }
+
+    // bottom left
+    if(
+      shipIndex % width > 0 && Math.floor(shipIndex/width) < width - 1 &&
+      !noGoZoneIndexes.includes(shipIndex + width - 1)
+    ) {
+      noGoZoneIndexes.push(shipIndex + width - 1)
+    }
+    // bottom right
+    if(
+      shipIndex % width < width - 1 && Math.floor(shipIndex/width) < width - 1&&
+      !noGoZoneIndexes.includes(shipIndex + width + 1)
+    ) {
+      noGoZoneIndexes.push(shipIndex + width + 1)
+    }
+  })
+
+  noGoZoneIndexes.forEach(index => grid[index].classList.add('no-go'))
+
+  return noGoZoneIndexes
 }
 
-function placeCompShips(){
-  while(compShipCount > 0){
-    generateShip()
-    console.log((compShipCount) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
-    compShipCount--
-  }
-}
-
-function randomNumber(){
-  randomNum = Math.floor(Math.random() * grid2.length)
-
-  column = randomNum % gridWidth
-
-  row = Math.floor(randomNum/gridWidth)
-}
-
-function horizontalOrVertical(){
-  horizOrVert = Math.round(Math.random() * 2)
-  if(horizOrVert === 1){
-    orientation = 1
-  } else {
-    orientation = 10
-  }
-}
-
-function checkIfPlaceShip(grid, index){
-  let coastIsClear = true
-
-  // check ship fits on current row/column
-  if((index % gridWidth) + shipLength > gridWidth) {
+function layShip(index, length, orientation, grid){
+  if(checkIfCanLayShip(index, length, orientation, grid)){
+    const shipIndexes = getShipArray(index, length, orientation)
+    getNoGoIndexes(shipIndexes, grid)
+    shipIndexes.forEach((ship) => {
+      grid[ship].classList.add('ship')
+      shipDropDown.value = 10
+    })
+  } else if (grid === grid2){
+    layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid)
+  } else{
+    gameMessage.innerText = 'Please select a correct position or ship you haven\'t used!'
     return false
   }
-  for(let i = 0; i<shipLength; i++){
-    if (
-      grid[index + (i * orientation)].classList.contains('ship') ||
-      grid[index + (i * orientation)].classList.contains('no-go')
-    ){
-      coastIsClear = false
-    }
-  }
-
-  return coastIsClear
 }
+// Lay computer ships
+compShipLength.forEach((length) => {
+  layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid2)
+})
 
-function addNoGoZoneHorizontal() {
-  let noGoLength = shipLength + 2
-  if(column === 0 || (randomNum + shipLength - 1) % gridWidth === gridWidth - 1) {
-    noGoLength = shipLength + 1
-  }
-  // top line
-  for(let i = 0; i<noGoLength; i++) {
-    let start = randomNum - 1 - gridWidth
-    if(column === 0) start = randomNum - gridWidth
-    const cell = grid2[start + (i * orientation)]
-    if(cell) cell.classList.add('no-go')
-  }
-  // bottom line
-  for(let i = 0; i<noGoLength; i++) {
-    let start = randomNum - 1 + gridWidth
-    if(column === 0) start = randomNum + gridWidth
-    const cell = grid2[start + (i * orientation)]
-    if(cell) cell.classList.add('no-go')
-  }
-  // left side
-  if(column !== 0) grid2[randomNum - 1].classList.add('no-go')
-  // right side
-  if((randomNum + shipLength - 1) % gridWidth !== gridWidth -1) grid2[randomNum + shipLength].classList.add('no-go')
-}
-
-function addNoGoZoneVertical() {
-  let noGoLength = shipLength + 2
-  if(row === 0 || (randomNum + shipLength - 1) % gridHeight === gridHeight - 1) {
-    noGoLength = shipLength + 1
-  }
-
-  // left line
-  for(let i = 0; i<noGoLength; i++) {
-    let start = randomNum - 1 - gridHeight
-    if(column === 0) start = randomNum - gridWidth
-    const cell = grid2[start + (i * orientation)]
-    if(cell) cell.classList.add('no-go')
+function userPlaceShip(index){
+  const length =  userShipLength[shipDropDown.value]
+  console.log(userShipLength)
+  if(userShipHorizontal){
+    layShip(index, length, 1, grid1)
+    changeDropDown()
+  }else if(!userShipHorizontal){
+    layShip(index, length, 10, grid1)
+    changeDropDown()
   }
 }
 
-function generateShip(){
-  randomNumber()
-  horizontalOrVertical()
 
-  if(checkIfPlaceShip(grid2, randomNum)){
-    // ship
-    for(let i = 0; i < shipLength; i++){
-      grid2[randomNum + (i * orientation)].classList.add('ship')
-    }
-
-    if(orientation === 1) addNoGoZoneHorizontal()
-    else addNoGoZoneVertical()
-  } else {
-    generateShip()
-  }
-
+function changeDropDown(){
+  shipDropDown.options[shipDropDown.selectedIndex].text = 'Already Placed'
 }
 
-// USER FUNCTIONS
+// HIT OR MISS FUNCTIONS
 
-function placeUserShipHorizontal(grid, index){
-  if((leftToRight) && ((index % gridWidth) < 8)){
-    for(let i = 0; i< shipLength; i++){
-      grid1[index + i].classList.add('ship')
-    }
-    clearGameMessage()
-    shipCount++
-  } else {
-    gameMessage.innerText = 'Place ship again, incorrect space.'
-  }
-  userShipCount(shipCount)
-}
-
-function placeUserShipVertical(grid, index){
-  if(!leftToRight && (Math.floor(index/gridWidth) < 8)){
-    for(let i = 0; i< shipLength; i++){
-      grid1[index + (i * 10)].classList.add('ship')
-    }
-    clearGameMessage()
-    shipCount++
-  } else {
-    gameMessage.innerText = 'Place ship again, incorrect space.'
-  }
-  userShipCount(shipCount)
-}
-
-function userShipCount(shipCount){
-  if(shipCount === 3){
-    userTurn()
-    gameMessage.innerText = 'Take your shot'
-  }
-}
-
-function clearGameMessage(){
-  gameMessage.innerText = ''
-}
-
-function userShot(grid, index){
-  if((gameInPlay === false) || (grid2[index].classList.contains('miss')) ||
-  (grid2[index].classList.contains('hit'))){
-    return false
-  }
-  console.log('clicked', index)
-  console.log('row' + Math.floor(index/gridWidth))
-  hitOrMiss(grid2, index)
-  turn++
-  console.log(`user ${turn} number`)
-  compShotGener()
+function hitTotal(userHit){
+  let winTotal
+  computerShotArray.forEach((number) =>{
+    winTotal = winTotal + number
+  })
+  if(userHit === winTotal) win(userHit)
+  else win()
 }
 
 function hitCounter(grid){
-  compShipCount = 3
-  shipCount = 3
+  let computerHit = 0
+  let userHit = 0
 
   if(grid === grid1){
-    compHit++
-    console.log(`This is the comp hit ${compHit}`)
+    computerHit++
+    console.log(`This is the comp hit ${computerHit}`)
   } else{
     userHit++
     console.log(`This is the user hit ${userHit}`)
   }
-  if((userHit === (compShipCount * shipLength)) || (compHit === (shipCount * shipLength))){
-    win()
-  }
+  hitTotal(userHit, computerHit)
 }
 
+//
 function hitOrMiss(grid, index){
   if(grid[index].classList.contains('ship')){
     grid[index].classList.remove('ship')
@@ -241,53 +194,79 @@ function hitOrMiss(grid, index){
   }
 }
 
-function win(){
+// USER SHOT
+//
+function userShot(grid, index){
+  if((gameInPlay === false) || (grid2[index].classList.contains('miss')) ||
+  (grid2[index].classList.contains('hit'))){
+    return false
+  }
+  hitOrMiss(grid2, index)
+  turn++
+  console.log(`user ${turn} number`)
+  computerShotIndex()
+}
+
+// COMPUTER FUNCTIONS
+
+// Computer shot functions
+function computerShotIndex(){
+  const computerShotIndex = Math.floor(Math.random() * 100)
+  compTurn(computerShotIndex)
+}
+
+function compTurn(computerShotIndex){
+  if(turn % 2 === 1){
+    if(computerShotArray.includes(computerShotIndex)){
+      computerShotIndex()
+    } else{
+      computerShotArray.push(computerShotIndex)
+      turn ++
+      console.log(`comp ${turn} number`)
+      hitOrMiss(grid1, computerShotIndex)
+    }
+  }
+}
+
+function win(userHit){
   gameInPlay = false
-  if(userHit === (compShipCount * shipLength)){
+  if(userHit){
     gameMessage.innerText = 'You have won!!'
   } else{
     gameMessage.innerText = 'You lose'
   }
 }
-
-function gamePlay(){
-  turn = 0
-  gameInPlay = true
-  placeCompShips()
-  placeShips()
-}
+//
+// function gamePlay(){
+//   turn = 0
+//   gameInPlay = true
+//   placeCompShips()
+//   placeShips()
+// }
 // grab buttons
-function placeShips(){
-  grid1.forEach((square1, index) => {
-    square1.addEventListener('click', () => {
-      console.log('clicked', index)
-      if(shipCount === 3){
-        return false
-      } else if(leftToRight){
-        placeUserShipHorizontal(grid1, index)
-      } else{
-        placeUserShipVertical(grid1, index)
-      }
-    })
-  })
-}
 
-function userTurn(){
-  grid2.forEach((square2, index) => {
-    square2.addEventListener('click', () => {
-      userShot(grid2, index)
-    })
+grid1.forEach((square1, index) => {
+  square1.addEventListener('click', () => {
+    console.log('clicked')
+    userPlaceShip(index)
   })
-}
-
-button.addEventListener('click', () => {
-  if(leftToRight){
-    leftToRight = false
-    button.innerText = 'Vertical'
-  } else{
-    leftToRight = true
-    button.innerText = 'Horizontal'
-  }
 })
 
-gamePlay()
+grid2.forEach((square2, index) => {
+  square2.addEventListener('click', () => {
+    userShot(grid2, index)
+  })
+})
+
+button.addEventListener('click', () => {
+  if(userShipHorizontal){
+    userShipHorizontal = false
+    button.innerText = 'Vertical'
+    console.log(userShipHorizontal)
+  } else{
+    userShipHorizontal = true
+    button.innerText = 'Horizontal'
+    console.log(userShipHorizontal)
+
+  }
+})
