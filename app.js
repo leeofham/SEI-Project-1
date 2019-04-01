@@ -13,14 +13,6 @@ const compShotArray = []
 
 let turn = 0
 let compShot
-let noGoTopLeft
-let noGoLeft
-let noGoRight
-let noGoBottomLeft
-let noGoTopRight
-let noGoTopMid
-let noGoBottomMid
-let noGoLength
 let grid1Divs
 let grid2Divs
 let randomNum
@@ -31,8 +23,9 @@ let userHit = 0
 let compHit = 0
 let gameInPlay = true
 let shipCount = 0
-let compShipCount = 0
+let compShipCount = 3
 let leftToRight = true
+let orientation
 
 // CREATE GRID
 
@@ -67,17 +60,15 @@ function compTurn(){
 }
 
 function placeCompShips(){
-  // while(compShipCount < 3){
-    randomNumber()
-    horizontalOrVertical()
-    console.log((randomNum + 1) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
-    // compShipCount++
-  // }
+  while(compShipCount > 0){
+    generateShip()
+    console.log((compShipCount) + ' ship number, ' + randomNum + ' index number, '+ column + ' column number, ' + row + ' row number, ' + horizOrVert + ' 1 = horizontal / 2 = vertical')
+    compShipCount--
+  }
 }
 
 function randomNumber(){
-  randomNum = 0
-  // Math.floor(Math.random() * grid2.length)
+  randomNum = Math.floor(Math.random() * grid2.length)
 
   column = randomNum % gridWidth
 
@@ -85,149 +76,89 @@ function randomNumber(){
 }
 
 function horizontalOrVertical(){
-  horizOrVert = 2
-  // Math.ceil(Math.random() * 2)
-
+  horizOrVert = Math.round(Math.random() * 2)
   if(horizOrVert === 1){
-    generateShipHorizontal()
+    orientation = 1
   } else {
-    generateShipVertically()
+    orientation = 10
   }
 }
 
-function generateShipHorizontal(){
-  while((gridWidth - column) < shipLength){
-    placeCompShips()
+function checkIfPlaceShip(grid, index){
+  let coastIsClear = true
+
+  // check ship fits on current row/column
+  if((index % gridWidth) + shipLength > gridWidth) {
+    return false
   }
-  for(let i = 0; i < shipLength; i++){
-    grid2[randomNum + (i)].classList.add('ship')
-    // noGoZoneHorizontal()
+  for(let i = 0; i<shipLength; i++){
+    if (
+      grid[index + (i * orientation)].classList.contains('ship') ||
+      grid[index + (i * orientation)].classList.contains('no-go')
+    ){
+      coastIsClear = false
+    }
+  }
+
+  return coastIsClear
+}
+
+function addNoGoZoneHorizontal() {
+  let noGoLength = shipLength + 2
+  if(column === 0 || (randomNum + shipLength - 1) % gridWidth === gridWidth - 1) {
+    noGoLength = shipLength + 1
+  }
+  // top line
+  for(let i = 0; i<noGoLength; i++) {
+    let start = randomNum - 1 - gridWidth
+    if(column === 0) start = randomNum - gridWidth
+    const cell = grid2[start + (i * orientation)]
+    if(cell) cell.classList.add('no-go')
+  }
+  // bottom line
+  for(let i = 0; i<noGoLength; i++) {
+    let start = randomNum - 1 + gridWidth
+    if(column === 0) start = randomNum + gridWidth
+    const cell = grid2[start + (i * orientation)]
+    if(cell) cell.classList.add('no-go')
+  }
+  // left side
+  if(column !== 0) grid2[randomNum - 1].classList.add('no-go')
+  // right side
+  if((randomNum + shipLength - 1) % gridWidth !== gridWidth -1) grid2[randomNum + shipLength].classList.add('no-go')
+}
+
+function addNoGoZoneVertical() {
+  let noGoLength = shipLength + 2
+  if(row === 0 || (randomNum + shipLength - 1) % gridHeight === gridHeight - 1) {
+    noGoLength = shipLength + 1
+  }
+
+  // left line
+  for(let i = 0; i<noGoLength; i++) {
+    let start = randomNum - 1 - gridHeight
+    if(column === 0) start = randomNum - gridWidth
+    const cell = grid2[start + (i * orientation)]
+    if(cell) cell.classList.add('no-go')
   }
 }
 
-function generateShipVertically(){
-  while((gridHeight - row) < shipLength) {
-    placeCompShips()
+function generateShip(){
+  randomNumber()
+  horizontalOrVertical()
+
+  if(checkIfPlaceShip(grid2, randomNum)){
+    // ship
+    for(let i = 0; i < shipLength; i++){
+      grid2[randomNum + (i * orientation)].classList.add('ship')
+    }
+
+    if(orientation === 1) addNoGoZoneHorizontal()
+    else addNoGoZoneVertical()
+  } else {
+    generateShip()
   }
-  noGoZoneVertical()
-  for(let i = 0; i < shipLength; i++){
-    grid2[randomNum + (i * 10)].classList.add('ship')
-  }
-}
 
-function noGoZoneHorizontal(){
-  noGoLength = shipLength + 2
-
-  noGoTopLeft = (randomNum - gridWidth - 1)
-  noGoBottomLeft = (randomNum + gridWidth - 1)
-  noGoLeft = randomNum - 1
-  noGoRight = randomNum + shipLength
-
-  // top left corner
-  if(randomNum === 0){
-    noGoLength -= 1
-    noGoBottomLeft = randomNum + gridWidth
-
-    grid2[noGoRight].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-    // bottom left corner
-  } else if(randomNum === 90){
-    noGoLength -= 1
-    noGoTopLeft = (randomNum - gridWidth)
-
-    grid2[noGoRight].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-    }
-    // top right corner
-  } else if(randomNum === 7){
-    noGoLength -= 1
-    noGoBottomLeft = (randomNum + gridWidth - 1)
-    grid2[noGoLeft].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-    // bottom right corner
-  } else if(randomNum === 97){
-    noGoLength -= 1
-    noGoTopLeft = randomNum - gridWidth - 1
-    grid2[noGoLeft].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-    }
-  // left hand side no go zone
-  } else if(randomNum % gridWidth === 0){
-    noGoLength--
-    noGoTopLeft = randomNum - gridWidth
-    noGoBottomLeft = randomNum + gridWidth
-    grid2[noGoRight].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-  //   // right hand side no zone
-  } else if(noGoTopLeft % gridWidth === gridWidth - (shipLength + 1)){
-    noGoLength -= 1
-    grid2[noGoLeft].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-    // bottom no go zone
-  } else if(noGoLeft > 90) {
-    grid2[noGoRight].classList.add('no-go')
-    grid2[noGoLeft].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-    }
-    // top no go zone
-  } else if(noGoRight < 10) {
-    grid2[noGoRight].classList.add('no-go')
-    grid2[noGoLeft].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-  } else{
-    grid2[noGoRight].classList.add('no-go')
-    grid2[noGoLeft].classList.add('no-go')
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopLeft + i].classList.add('no-go')
-      grid2[noGoBottomLeft + i].classList.add('no-go')
-    }
-  }
-}
-
-function noGoZoneVertical(){
-  noGoLength = (shipLength + 2)
-
-  noGoTopLeft = (randomNum - gridWidth - 1)
-  noGoTopRight = (randomNum - gridWidth + 1)
-  noGoTopMid = randomNum - gridWidth
-  noGoBottomMid = (randomNum + (shipLength * 10))
-  noGoRight = randomNum + shipLength
-
-  // TOP LEFT
-  if(randomNum === 0){
-    noGoLength = (shipLength + 1)
-    noGoTopRight = randomNum + 1
-
-    grid2[noGoBottomMid].classList.add('no-go')
-
-    for(let i=0; i < noGoLength; i++){
-      grid2[noGoTopRight + (i * 10)].classList.add('no-go')
-    }
-    // bottom left corner
-  }
 }
 
 // USER FUNCTIONS
@@ -270,7 +201,10 @@ function clearGameMessage(){
 }
 
 function userShot(grid, index){
-  if(gameInPlay === false || grid2[index].classList.contains('miss')) return false
+  if((gameInPlay === false) || (grid2[index].classList.contains('miss')) ||
+  (grid2[index].classList.contains('hit'))){
+    return false
+  }
   console.log('clicked', index)
   console.log('row' + Math.floor(index/gridWidth))
   hitOrMiss(grid2, index)
@@ -300,7 +234,7 @@ function hitOrMiss(grid, index){
     grid[index].classList.remove('ship')
     grid[index].classList.add('hit')
     hitCounter(grid)
-  } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') ||     grid[index].classList.contains('no-go')) {
+  } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') || grid[index].classList.contains('no-go')) {
     grid[index].classList.remove('no-go')
     grid[index].classList.add('miss')
     grid[index].innerText = 'X'
