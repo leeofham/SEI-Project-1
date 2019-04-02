@@ -4,8 +4,8 @@ console.log('JS loaded')
 const section1 = document.querySelector('.grid-one')
 const section2 = document.querySelector('.grid-two')
 const gameMessage = document.querySelector('.game-message')
-const button = document.querySelector('button')
-const shipDropDown = document.querySelector('#ship-selection')
+const button = document.querySelector('.orientation-button')
+const shipButton = document.querySelectorAll('.ship-button')
 const width = 10
 
 const grid1 = []
@@ -18,7 +18,10 @@ const computerShotArray = []
 let gameInPlay = true
 let userShipHorizontal = true
 let turn = 0
-
+let length
+let userOrientation
+let userHit = 0
+let computerHit = 0
 // column = index % width
 // row = Math.floor(index/width)
 
@@ -125,8 +128,8 @@ function layShip(index, length, orientation, grid){
     getNoGoIndexes(shipIndexes, grid)
     shipIndexes.forEach((ship) => {
       grid[ship].classList.add('ship')
-      shipDropDown.value = 10
     })
+    if(grid === grid1) removeFromArray(length)
   } else if (grid === grid2){
     layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid)
   } else{
@@ -140,45 +143,33 @@ compShipLength.forEach((length) => {
 })
 
 function userPlaceShip(index){
-  const length =  userShipLength[shipDropDown.value]
-  console.log(userShipLength)
-  if(userShipHorizontal){
-    layShip(index, length, 1, grid1)
-    changeDropDown()
-  }else if(!userShipHorizontal){
-    layShip(index, length, 10, grid1)
-    changeDropDown()
-  }
+  console.log(userShipLength, length)
+  if(!userShipLength.includes(length)) return false
+  if(userShipHorizontal) userOrientation = 1
+  else userOrientation = 10
+  layShip(index, length, userOrientation, grid1)
+
 }
 
-
-function changeDropDown(){
-  shipDropDown.options[shipDropDown.selectedIndex].text = 'Already Placed'
+function removeFromArray(length){
+  const indexOf = userShipLength.indexOf(length)
+  userShipLength.splice(indexOf, 1)
+  length = 0
 }
 
 // HIT OR MISS FUNCTIONS
 
-function hitTotal(userHit){
-  let winTotal
-  computerShotArray.forEach((number) =>{
-    winTotal = winTotal + number
-  })
-  if(userHit === winTotal) win(userHit)
-  else win()
-}
-
 function hitCounter(grid){
-  let computerHit = 0
-  let userHit = 0
-
+  const total = 17
   if(grid === grid1){
-    computerHit++
+    computerHit = computerHit + 1
     console.log(`This is the comp hit ${computerHit}`)
   } else{
-    userHit++
+    userHit = userHit + 1
     console.log(`This is the user hit ${userHit}`)
   }
-  hitTotal(userHit, computerHit)
+  if(userHit === total) win(userHit)
+  else if(computerHit === total) lose()
 }
 
 //
@@ -203,7 +194,6 @@ function userShot(grid, index){
   }
   hitOrMiss(grid2, index)
   turn++
-  console.log(`user ${turn} number`)
   computerShotIndex()
 }
 
@@ -211,30 +201,31 @@ function userShot(grid, index){
 
 // Computer shot functions
 function computerShotIndex(){
-  const computerShotIndex = Math.floor(Math.random() * 100)
-  compTurn(computerShotIndex)
+  const compShotIndex = Math.floor(Math.random() * 100)
+  compTurn(compShotIndex)
 }
 
-function compTurn(computerShotIndex){
+function compTurn(compShotIndex){
   if(turn % 2 === 1){
-    if(computerShotArray.includes(computerShotIndex)){
+    if(computerShotArray.includes(compShotIndex)){
       computerShotIndex()
     } else{
-      computerShotArray.push(computerShotIndex)
+      computerShotArray.push(compShotIndex)
       turn ++
       console.log(`comp ${turn} number`)
-      hitOrMiss(grid1, computerShotIndex)
+      hitOrMiss(grid1, compShotIndex)
     }
   }
 }
 
-function win(userHit){
+function win(){
   gameInPlay = false
-  if(userHit){
-    gameMessage.innerText = 'You have won!!'
-  } else{
-    gameMessage.innerText = 'You lose'
-  }
+  gameMessage.innerText = 'You have won!!'
+}
+
+function lose(){
+  gameInPlay = false
+  gameMessage.innerText = 'You have lost!!'
 }
 //
 // function gamePlay(){
@@ -267,6 +258,13 @@ button.addEventListener('click', () => {
     userShipHorizontal = true
     button.innerText = 'Horizontal'
     console.log(userShipHorizontal)
-
   }
+})
+
+shipButton.forEach(shipButton => {
+  shipButton.addEventListener('click', (e) => {
+    length = parseInt(e.target.value)
+    console.log(length)
+    gameMessage.innerText = shipButton.innerText
+  })
 })
