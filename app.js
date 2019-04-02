@@ -7,7 +7,16 @@ const gameMessage = document.querySelector('.game-message')
 const button = document.querySelector('.orientation-button')
 const shipButton = document.querySelectorAll('.ship-button')
 const selectedShip = document.querySelector('.selected-ship')
+const shipList = document.querySelector('.ship-list')
+const winLoseMessage = document.querySelector('.win-lose-message')
 const width = 10
+
+// Audio
+const oof = new Audio('sounds/Roblox-death-sound.mp3')
+const bang = new Audio('sounds/Explosion.mp3')
+const winAudio = new Audio('sounds/Oh-yeah-sound-effect.mp3')
+const loseAudio = new Audio('sounds/Sad-trombone.mp3')
+const gameEnd = new Audio('sounds/Game-ending-sound-effect.mp3')
 
 const grid1 = []
 const grid2 = []
@@ -52,17 +61,14 @@ function getShipArray(index, length, orientation){
 
 function checkIfCanLayShip(index, length, orientation, grid){
   if(orientation === 1 && width - (index % width) < length) return false
-  if(orientation === 10 && width - Math.floor(index/width) < length){
-    console.log('this is failing')
-    return false
-  }
+  if(orientation === 10 && width - Math.floor(index/width) < length)return false
+
 
   // loop through and check that all the squares do not contain ship or no-go
   for(let i = 0; i<length; i++) {
     if(grid[index + (i * orientation)].classList.contains('ship') ||
     grid[index + (i * orientation)].classList.contains('no-go')) return false
   }
-  console.log('check if can lay ship = true')
   return true
 }
 
@@ -133,15 +139,20 @@ function layShip(index, length, orientation, grid){
   }
 }
 // Lay computer ships
+gameMessage.innerText = 'Place your ships to begin!'
 compShipLength.forEach((length) => {
   layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid2)
 })
 
 // lay player ships
 function userPlaceShip(index){
-  if(!userShipLength.includes(length)) return false
+  if(!userShipLength.includes(length)){
+    gameMessage.innerText = 'You have already layed that ship!'
+    return false
+  }
   if(!userShipHorizontal) userOrientation = 10
   else userOrientation = 1
+  gameMessage.innerText = 'Place your ships to begin!'
   layShip(index, length, userOrientation, grid1)
 }
 
@@ -150,6 +161,7 @@ function removeFromArray(length){
   userShipLength.splice(indexOf, 1)
   length = 0
   if(userShipLength.length === 0){
+    gameMessage.innerText = 'Take a shot!'
     gameInPlay = true
   }
 }
@@ -172,6 +184,10 @@ function hitOrMiss(grid, index){
   if(grid[index].classList.contains('ship')){
     grid[index].classList.remove('ship')
     grid[index].classList.add('hit')
+    if(bang.currentTime > 0){
+      bang.currentTime = 0
+      bang.play()
+    } else bang.play()
     checkIfDestroyed(grid, index)
     hitCounter(grid)
   } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') || grid[index].classList.contains('no-go')) {
@@ -205,6 +221,8 @@ function checkIfDestroyed(grid, index){
 function updateIfDestroyed(row){
   if(shipLocations[row].length === 0){
     gameMessage.innerText = 'Ship Destroyed!'
+    bang.pause()
+    oof.play()
   } else {
     gameMessage.innerText = ''
   }
@@ -241,16 +259,33 @@ function compTurn(compShotIndex){
   }
 }
 
-// win or lose
+function hideThings(){
+  shipList.style.display = 'none'
+  button.style.display = 'none'
+  section1.style.display = 'none'
+  section2.style.display = 'none'
+  gameMessage.style.display = 'none'
+}
+
+function winSpecialEffects(){
+  gameEnd.play()
+  setTimeout(() => {
+    winAudio.play()
+  }, 1000)
+}
 
 function win(){
   gameInPlay = false
-  gameMessage.innerText = 'You have won!!'
+  hideThings()
+  winSpecialEffects()
+  winLoseMessage.innerText = 'You have won!!'
 }
 
 function lose(){
   gameInPlay = false
-  gameMessage.innerText = 'You have lost!!'
+  hideThings()
+  winLoseMessage.innerText = 'You have lost!!'
+  loseAudio.play()
 }
 
 // grab buttons

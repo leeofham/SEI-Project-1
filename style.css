@@ -6,6 +6,18 @@ body{
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #272727;
+  color: #ff652f;
+  font-family: 'Lato', sans-serif;
+  user-select: none;
+}
+
+header{
+  display: flex;
+  height: 200px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 main{
@@ -15,6 +27,23 @@ main{
   flex-direction: column;
   width: 100%;
   height: 100%;
+}
+
+h1{
+  font-size: 120px;
+  letter-spacing: 15px;
+  font-weight: 800;
+  margin: 0px 0px 0px 0px;
+  text-shadow: -1px -1px 0 #ffe400, 1px -1px 0 #ffe400, -1px 1px 0 #ffe400, 1px 1px 0 #ffe400;
+  -webkit-text-fill-color: #272727;
+}
+
+.game-message{
+  margin: 0px;
+  margin-top:15px;
+  font-size: 20px;
+  height: 50px;
+  color: #747474;
 }
 
 .grids{
@@ -29,70 +58,103 @@ main{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 400px;
-  height: 400px;
+  width: 350px;
+  height: 350px;
+  box-shadow: 10px 10px 30px #070707;
 }
 
 section div {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  border: solid black 1px;
+  width: 35px;
+  height: 35px;
+  border: solid #14A76C 1px;
 }
 
 .gameplay{
-  margin-top: 30px;
   display: flex;
   flex-direction: row;
-  width: 68%;
+  width: 55%;
   height: 20%;
   justify-content: flex-start;
   align-items: center;
+  margin-left: -60px;
+  margin-top:10px;
 }
 
 .orientation-button{
   width: 110px;
   height: 50px;
-  font-size: 20px;
-  border-radius: 25px;
-  border: solid black 1px;
-  background-color: white;
+  border: none;
+  margin-top: -35px;
+  padding: 0;
 }
 
 .ship-list{
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 230px;
   height: 150px;
   border: none;
   justify-content: center;
-  align-items: center;
-  margin-top: -20px;
-
+  align-items: flex-start;
 }
 
 .ship-button{
-  width: 300px;
+  display: flex;
+  align-items: flex-start;
+  width: 230px;
   height: 75px;
-  font-size: 15px;
-  border: none;
-  background-color: white;
 }
 
 .ship{
-  background-color: green;
+  background-color: #ffe400;
 }
 
 .hit{
-  background-color: red;
+  background-image: url("images/fire.gif");
+  background-size: contain;
 }
 
 .miss{
-  font-size: 45px;
+  font-size: 30px;
+  text-shadow: -1px -1px 0 #ffe400, 1px -1px 0 #ffe400, -1px 1px 0 #ffe400, 1px 1px 0 #ffe400;
+  -webkit-text-fill-color: #272727;
 }
 
 .no-go{
-  background-color: yellow;
+  background-color: #353535;
+}
+
+.grid-two .ship{
+    background-color: inherit;
+}
+
+.grid-two .no-go{
+  background-color: inherit;
+}
+
+.win-lose-message{
+  font-size: 100px;
+  color: #272727;
+  text-shadow: -1px -1px 0 #ff652f, 1px -1px 0 #ff652f, -1px 1px 0 #ff652f, 1px 1px 0 #ff652f;
+
+}
+
+button{
+  font-size: 15px;
+  border: none;
+  background-color: #272727;
+  color: #ff652f;
+  cursor: pointer;
+  padding-left: 0px;
+}
+
+button:focus {
+  outline:0;
+}
+
+button:active {
+  color:#cc310b;
 }
