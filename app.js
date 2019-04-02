@@ -15,13 +15,14 @@ const compShipLength = [5, 4, 3, 3, 2]
 const userShipLength = [5, 4, 3, 3, 2]
 const computerShotArray = []
 
-let gameInPlay = true
+let gameInPlay
 let userShipHorizontal = true
 let turn = 0
 let length
 let userOrientation
 let userHit = 0
 let computerHit = 0
+let shipCount = 0
 // column = index % width
 // row = Math.floor(index/width)
 
@@ -129,7 +130,11 @@ function layShip(index, length, orientation, grid){
     shipIndexes.forEach((ship) => {
       grid[ship].classList.add('ship')
     })
-    if(grid === grid1) removeFromArray(length)
+    if(grid === grid1){
+      removeFromArray(length)
+      shipCount += 1
+      console.log(shipCount)
+    }
   } else if (grid === grid2){
     layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid)
   } else{
@@ -155,6 +160,9 @@ function removeFromArray(length){
   const indexOf = userShipLength.indexOf(length)
   userShipLength.splice(indexOf, 1)
   length = 0
+  if(userShipLength.length === 0){
+    gameInPlay = true
+  }
 }
 
 // HIT OR MISS FUNCTIONS
@@ -227,13 +235,7 @@ function lose(){
   gameInPlay = false
   gameMessage.innerText = 'You have lost!!'
 }
-//
-// function gamePlay(){
-//   turn = 0
-//   gameInPlay = true
-//   placeCompShips()
-//   placeShips()
-// }
+
 // grab buttons
 
 grid1.forEach((square1, index) => {
@@ -245,7 +247,7 @@ grid1.forEach((square1, index) => {
 
 grid2.forEach((square2, index) => {
   square2.addEventListener('click', () => {
-    userShot(grid2, index)
+    if(gameInPlay)userShot(grid2, index)
   })
 })
 
