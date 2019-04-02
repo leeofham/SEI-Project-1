@@ -24,8 +24,6 @@ let length
 let userOrientation
 let userHit = 0
 let computerHit = 0
-// column = index % width
-// row = Math.floor(index/width)
 
 // CREATE GRID
 for(let i = 0; i<width ** 2; i++){
@@ -54,14 +52,17 @@ function getShipArray(index, length, orientation){
 
 function checkIfCanLayShip(index, length, orientation, grid){
   if(orientation === 1 && width - (index % width) < length) return false
-  if(orientation === 10 && width - Math.floor(index/width) <= (width - length)) return false
+  if(orientation === 10 && width - Math.floor(index/width) < length){
+    console.log('this is failing')
+    return false
+  }
 
   // loop through and check that all the squares do not contain ship or no-go
   for(let i = 0; i<length; i++) {
     if(grid[index + (i * orientation)].classList.contains('ship') ||
     grid[index + (i * orientation)].classList.contains('no-go')) return false
   }
-
+  console.log('check if can lay ship = true')
   return true
 }
 
@@ -139,10 +140,9 @@ compShipLength.forEach((length) => {
 // lay player ships
 function userPlaceShip(index){
   if(!userShipLength.includes(length)) return false
-  if(userShipHorizontal) userOrientation = 1
-  else userOrientation = 10
+  if(!userShipHorizontal) userOrientation = 10
+  else userOrientation = 1
   layShip(index, length, userOrientation, grid1)
-
 }
 
 function removeFromArray(length){
@@ -180,14 +180,6 @@ function hitOrMiss(grid, index){
     grid[index].innerText = 'X'
   }
 }
-
-// function that checks if ship is checkIfDestroyed
-// splices value from nested array
-// if nested array[0 to 5].length = comp ship is destroyed
-// if nested array[5 <].length = comp ship is destroyed
-
-// else ship is not destroyed
-
 
 function checkIfDestroyed(grid, index){
   let row = 0
