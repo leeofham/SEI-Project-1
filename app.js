@@ -29,13 +29,11 @@ const computerShotArray = []
 
 let gameInPlay
 let userShipHorizontal = true
-let turn = 0
 let length
 let userOrientation = 1
 let userHit = 0
 let computerHit = 0
-let compLastShotHit
-let lastHit
+let lastCompShotHit = false
 
 // CREATE GRID
 for(let i = 0; i<width ** 2; i++){
@@ -159,7 +157,6 @@ function userPlaceShip(index){
   layShip(index, length, userOrientation, grid1)
 }
 
-
 function removeFromArray(length){
   const indexOf = userShipLength.indexOf(length)
   userShipLength.splice(indexOf, 1)
@@ -173,40 +170,37 @@ function removeFromArray(length){
 // HIT OR MISS FUNCTIONS
 function hitCounter(grid){
   const total = 17
-  if(grid === grid1){
-    computerHit = computerHit + 1
-  } else{
-    userHit = userHit + 1
-  }
+  if(grid === grid1) computerHit = computerHit + 1
+  else userHit = userHit + 1
+
   if(userHit === total) win(userHit)
   else if(computerHit === total) lose()
 }
 
-function hitSound(){
+function hitOrMiss(grid, index){
+  if(grid[index].classList.contains('ship')){
+    hit(grid, index)
+    hitSounds()
+    checkIfDestroyed(grid, index)
+    hitCounter(grid)
+  } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') || grid[index].classList.contains('no-go')) {
+    miss(grid, index)
+  }
+}
+
+function hitSounds(){
   if(bang.currentTime > 0){
     bang.currentTime = 0
     bang.play()
   } else bang.play()
 }
 
-function hitOrMiss(grid, index){
-  if(grid[index].classList.contains('ship')){
-    hit(grid, index)
-
-  } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') || grid[index].classList.contains('no-go')) {
-    miss(grid, index)
-  }
-}
-
 function hit(grid, index){
   grid[index].classList.remove('ship')
   grid[index].classList.add('hit')
-  hitSound()
-  checkIfDestroyed(grid, index)
-  hitCounter(grid)
-  if(grid === grid1){
-    compLastShotHit = true
-    lastHit = index
+  if(grid === grid1) {
+    lastCompShotHit = true
+    console.log(lastCompShotHit)
   }
 }
 
@@ -226,6 +220,10 @@ function checkIfDestroyed(grid, index){
     row = 0
     length = 5
   }
+  searchShipArrays(grid, index, row, length)
+}
+
+function searchShipArrays(grid, index, row, length){
   for (row; row < length ; row ++) {
     for (let col = 0; col< shipLocations[row].length; col++) {
       if (shipLocations[row][col] === index) {
@@ -273,38 +271,25 @@ function userShot(grid, index){
     return false
   }
   hitOrMiss(grid2, index)
-  turn++
-  determineIfEstimateGuess()
+  computerShotIndex()
 }
 
-function determineIfEstimateGuess(){
-  if(turn % 2 === 1){
-    if(!compLastShotHit) computerShotIndex()
-    else estimatedGuess()
-  }
-}
 // COMPUTER FUNCTIONS
 // Computer shot functions
+
+
 function computerShotIndex(){
   const compShotIndex = Math.floor(Math.random() * 100)
   compTurn(compShotIndex)
 }
 
 function compTurn(compShotIndex){
-  computerShotIndex()
   if(computerShotArray.includes(compShotIndex)){
     computerShotIndex()
   } else{
     computerShotArray.push(compShotIndex)
-    turn ++
     hitOrMiss(grid1, compShotIndex)
   }
-}
-
-
-function estimatedGuess(){
-  console.log(lastHit)
-  lastHit = false
 }
 
 // estimated guess, save last computer hit(run it when computer hits)
@@ -315,12 +300,7 @@ function estimatedGuess(){
 // fire at one of the indexs from next shot array
 // on next turn if hit, restart the function
 // if miss splice the next shot element and try again
-
-
-// user clicks their shot
-// increases turn by 1
-// calls shot gener fucntion
-// calls check shot gener function
+// function estimate
 
 function hideThingsOnWin(){
   section1.classList.toggle('hide')
@@ -365,9 +345,7 @@ grid1.forEach((square1, index) => {
 
 grid2.forEach((square2, index) => {
   square2.addEventListener('click', () => {
-    if(gameInPlay && turn % 2 === 0){
-      userShot(square2, index)
-    }
+    if(gameInPlay)userShot(grid2, index)
   })
 })
 
@@ -382,9 +360,6 @@ button.addEventListener('click', () => {
     button.innerText = 'Horizontal'
   }
 })
-
-// if userShipLength array does not contain shipbutton.value as number
-// do something to the button
 
 function placedShipButton(shipButton){
   const placedShipButton = parseInt(shipButton.value)
