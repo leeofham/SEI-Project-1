@@ -16,7 +16,6 @@ const oof = new Audio('sounds/Roblox-death-sound.mp3')
 const bang = new Audio('sounds/Explosion.mp3')
 const winAudio = new Audio('sounds/Oh-yeah-sound-effect.mp3')
 const loseAudio = new Audio('sounds/Sad-trombone.mp3')
-const gameEnd = new Audio('sounds/Game-ending-sound-effect.mp3')
 
 // Grids
 const grid1 = []
@@ -27,6 +26,8 @@ const compShipLength = [5, 4, 3, 3, 2]
 const userShipLength = [5, 4, 3, 3, 2]
 const computerShotArray = []
 
+let computerHitArray = []
+let possibleLocations = [-width, -1, 1, width]
 let gameInPlay
 let userShipHorizontal = true
 let length
@@ -34,6 +35,8 @@ let userOrientation = 1
 let userHit = 0
 let computerHit = 0
 let lastCompShotHit = false
+let compShotIndex
+let lastHit
 
 // CREATE GRID
 for(let i = 0; i<width ** 2; i++){
@@ -200,7 +203,10 @@ function hit(grid, index){
   grid[index].classList.add('hit')
   if(grid === grid1) {
     lastCompShotHit = true
-    console.log(lastCompShotHit)
+    lastHit = index
+    computerHitArray.push(index)
+    console.log(computerHitArray)
+    resetPossibleLocations()
   }
 }
 
@@ -237,6 +243,8 @@ function searchShipArrays(grid, index, row, length){
 function updateIfDestroyed(row){
   if(shipLocations[row].length === 0){
     gameMessage.innerText = 'Ship Destroyed!'
+    lastCompShotHit = false
+    computerHitArray = []
     bang.pause()
     oof.play()
   } else {
@@ -277,13 +285,16 @@ function userShot(grid, index){
 // COMPUTER FUNCTIONS
 // Computer shot functions
 
-
 function computerShotIndex(){
-  const compShotIndex = Math.floor(Math.random() * 100)
-  compTurn(compShotIndex)
+  if(lastCompShotHit) estimatedGuess()
+  else{
+    compShotIndex = Math.floor(Math.random() * 100)
+    compTurn(compShotIndex)
+  }
 }
 
 function compTurn(compShotIndex){
+  console.log(compShotIndex)
   if(computerShotArray.includes(compShotIndex)){
     computerShotIndex()
   } else{
@@ -292,25 +303,32 @@ function compTurn(compShotIndex){
   }
 }
 
-// estimated guess, save last computer hit(run it when computer hits)
-// need to interupt computer turn function so that it doesnt do a new random number
-// array of next shots if in middle = -1, -width, 1, width
-// need to check computerShotArray if the next shots havent been shot already
-// splice any that have
-// fire at one of the indexs from next shot array
-// on next turn if hit, restart the function
-// if miss splice the next shot element and try again
-// function estimate
+function estimatedGuess(){
+  const possibleLocationsIndex = Math.floor(Math.random() * possibleLocations.length)
+
+  if(possibleLocations.length === 0){
+    lastCompShotHit = false
+    computerShotIndex()
+  }
+  
+  const nextShot = lastHit + possibleLocations[possibleLocationsIndex]
+  possibleLocations.splice(possibleLocationsIndex, 1)
+  compTurn(nextShot)
+
+  console.log('the next shot is ' + nextShot)
+}
+
+function resetPossibleLocations(){
+  possibleLocations = [-width, -1, 1, width]
+}
 
 function hideThingsOnWin(){
   section1.classList.toggle('hide')
   section2.classList.toggle('hide')
   gameMessage.classList.toggle('hide')
-
 }
 
 function winSpecialEffects(){
-  gameEnd.play()
   setTimeout(() => {
     winAudio.play()
   }, 1000)
@@ -336,10 +354,10 @@ grid1.forEach((square1, index) => {
     userPlaceShip(index)
   })
   square1.addEventListener('mouseover', () =>{
-    shipHover(grid1, index)
+    if(!gameInPlay) shipHover(grid1, index)
   })
   square1.addEventListener('mouseout', () =>{
-    shipMouseLeave(grid1, index)
+    if(!gameInPlay) shipMouseLeave(grid1, index)
   })
 })
 
@@ -363,16 +381,17 @@ button.addEventListener('click', () => {
 
 function placedShipButton(shipButton){
   const placedShipButton = parseInt(shipButton.value)
-  console.log(placedShipButton)
   if(!userShipLength.includes(placedShipButton)){
-    shipButton.style.color = 'green'
+    shipButton.innerText = 'Already picked!'
+    shipButton.style.color = '#ffe400'
+    shipButton.disabled = 'true'
   }
 }
 
 shipButton.forEach(shipButton => {
   shipButton.addEventListener('click', (e) => {
+    placedShipButton(shipButton)
     length = parseInt(e.target.value)
     selectedShip.innerText = shipButton.innerText
-    placedShipButton(shipButton)
   })
 })

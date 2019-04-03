@@ -80,6 +80,7 @@ section div {
   justify-content: center;
   align-items: center;
   margin-top:10px;
+  font-size: 21px;
 }
 
 .orientation-button{
@@ -93,7 +94,7 @@ section div {
 .ship-list{
   display: flex;
   flex-direction: column;
-  width: 230px;
+  width: 400px;
   height: 150px;
   margin-left: 100px;
   border: none;
@@ -105,19 +106,19 @@ section div {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 230px;
+  width: 300px;
   height: 75px;
 }
 
-.hover{
-  background-color: #707070;
+.orientation-button{
+  width: 200px;
 }
 
 .hit{
   background-image: url("images/fire.gif");
   background-size: contain;
 }
-.ship{
+.hover.ship{
   background-color: #ffe400;
 }
 
@@ -143,11 +144,10 @@ section div {
   font-size: 100px;
   color: #272727;
   text-shadow: -1px -1px 0 #ff652f, 1px -1px 0 #ff652f, -1px 1px 0 #ff652f, 1px 1px 0 #ff652f;
-
 }
 
 button{
-  font-size: 15px;
+  font-size: 21px;
   border: none;
   background-color: #272727;
   color: #ff652f;
@@ -165,4 +165,8 @@ button:active {
 
 .hide{
   display: none;
+}
+
+.hover{
+  background-color: #707070;
 }
