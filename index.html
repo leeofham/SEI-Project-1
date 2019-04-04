@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
     <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <title>Battleships</title>
   </head>
@@ -23,7 +24,7 @@
           <button class='ship-button' value="2">Destroyer</button>
 
         </div>
-        <button class='orientation-button'>Horizontal</button>
+        <button class='orientation-button'><i class="fas fa-arrows-alt-h"></i><br>Horizontal</button>
         <section class='grids'>
           <section class='grid-one grid'>
 
@@ -33,7 +34,8 @@
           </section>
       </section>
       </section>
-      <p class='win-lose-message'></p>
+      <p class='win-lose-message hide'></p>
+      <button class='win-lose-reset hide'>Reset</button>
 
     </main>
     <script src="app.js" charset="utf-8"></script>

@@ -9,23 +9,26 @@ const shipButton = document.querySelectorAll('.ship-button')
 const selectedShip = document.querySelector('.selected-ship')
 const shipList = document.querySelector('.ship-list')
 const winLoseMessage = document.querySelector('.win-lose-message')
+const winLoseButton = document.querySelector('.win-lose-reset')
 const width = 10
 
 // Audio
 const oof = new Audio('sounds/Roblox-death-sound.mp3')
 const bang = new Audio('sounds/Explosion.mp3')
 const winAudio = new Audio('sounds/Oh-yeah-sound-effect.mp3')
+const giggity = new Audio('sounds/giggity.mp3')
 const loseAudio = new Audio('sounds/Sad-trombone.mp3')
 
 // Grids
 const grid1 = []
 const grid2 = []
 
-const shipLocations = []
-const compShipLength = [5, 4, 3, 3, 2]
-const userShipLength = [5, 4, 3, 3, 2]
+let shipLocations = []
 const computerShotArray = []
 
+const compShipLength = [5, 4, 3, 3, 2]
+let userShipLength = [5, 4, 3, 3, 2]
+let shipIndexes
 let computerHitArray = []
 let possibleLocations = [-width, -1, 1, width]
 let gameInPlay
@@ -54,7 +57,7 @@ function getShipOrientation(){
 }
 
 function getShipArray(index, length, orientation){
-  const shipIndexes = []
+  shipIndexes = []
   for(let i = 0; i < length; i++){
     shipIndexes.push(index + (i * orientation))
   }
@@ -141,9 +144,12 @@ function layShip(index, length, orientation, grid){
 }
 // Lay computer ships
 gameMessage.innerText = 'Place your ships to begin!'
-compShipLength.forEach((length) => {
-  layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid2)
-})
+
+function generateComputerShips(){
+  compShipLength.forEach((length) => {
+    layShip(Math.floor(Math.random() * width ** 2), length, getShipOrientation(), grid2)
+  })
+}
 
 function hideThingsOnStart(){
   section2.classList.toggle('hide')
@@ -192,10 +198,9 @@ function hitOrMiss(grid, index){
 }
 
 function hitSounds(){
-  if(bang.currentTime > 0){
-    bang.currentTime = 0
-    bang.play()
-  } else bang.play()
+  bang.pause()
+  bang.currentTime = 0
+  bang.play()
 }
 
 function hit(grid, index){
@@ -294,7 +299,6 @@ function computerShotIndex(){
 }
 
 function compTurn(compShotIndex){
-  console.log(compShotIndex)
   if(computerShotArray.includes(compShotIndex)){
     computerShotIndex()
   } else{
@@ -304,18 +308,24 @@ function compTurn(compShotIndex){
 }
 
 function estimatedGuess(){
+  if(lastHit === 0) possibleLocations = [1, width]
+  else if(lastHit === 9) possibleLocations = [-1, width]
+  else if(lastHit === 90) possibleLocations = [-width, 1]
+  else if(lastHit === 99) possibleLocations = [-width, -1]
+  else if(lastHit > 90 && lastHit < 99) possibleLocations = [-width, -1, 1]
+  else if(lastHit > 0 && lastHit < 9) possibleLocations = [-1, 1, width]
+
   const possibleLocationsIndex = Math.floor(Math.random() * possibleLocations.length)
-
-  if(possibleLocations.length === 0){
-    lastCompShotHit = false
-    computerShotIndex()
-  }
-  
   const nextShot = lastHit + possibleLocations[possibleLocationsIndex]
-  possibleLocations.splice(possibleLocationsIndex, 1)
-  compTurn(nextShot)
 
-  console.log('the next shot is ' + nextShot)
+  if(possibleLocations.length === 0 || computerShotArray.includes(nextShot)){
+    lastCompShotHit = false
+    computerHitArray = []
+    computerShotIndex()
+  } else{
+    possibleLocations.splice(possibleLocationsIndex, 1)
+    compTurn(nextShot)
+  }
 }
 
 function resetPossibleLocations(){
@@ -326,12 +336,18 @@ function hideThingsOnWin(){
   section1.classList.toggle('hide')
   section2.classList.toggle('hide')
   gameMessage.classList.toggle('hide')
+  winLoseButton.classList.toggle('hide')
+  winLoseMessage.classList.toggle('hide')
 }
 
 function winSpecialEffects(){
   setTimeout(() => {
+    giggity.play()
+  }, 500)
+  setTimeout(() => {
     winAudio.play()
-  }, 1000)
+  }, 1400)
+
 }
 
 function win(){
@@ -367,15 +383,45 @@ grid2.forEach((square2, index) => {
   })
 })
 
+function clearGrid(){
+  for(let i = 0; i < 100; i++){
+    grid1[i].classList.remove('ship')
+    grid2[i].classList.remove('ship')
+    grid1[i].classList.remove('hit')
+    grid2[i].classList.remove('hit')
+    grid1[i].classList.remove('miss')
+    grid2[i].classList.remove('miss')
+    grid1[i].classList.remove('no-go')
+    grid2[i].classList.remove('no-go')
+    grid1[i].classList.remove('hover')
+    grid1[i].innerText = ''
+    grid2[i].innerText = ''
+  }
+}
+
+function reset(){
+  gameInPlay = false
+  clearGrid()
+  hideThingsOnWin()
+  hideThingsOnStart()
+  winLoseMessage.classList.add('hide')
+  shipIndexes = []
+  shipLocations = []
+  userShipLength = [5, 4, 3, 3, 2]
+  userHit = 0
+  computerHit = 0
+  generateComputerShips()
+}
+
 button.addEventListener('click', () => {
   if(userShipHorizontal){
     userShipHorizontal = false
     userOrientation = 10
-    button.innerText = 'Vertical'
+    button.innerHTML = '<i class="fas fa-arrows-alt-v"></i> <br> Vertical'
   } else{
     userShipHorizontal = true
     userOrientation = 1
-    button.innerText = 'Horizontal'
+    button.innerHTML= '<i class="fas fa-arrows-alt-h"></i> <br> Horizontal'
   }
 })
 
@@ -395,3 +441,8 @@ shipButton.forEach(shipButton => {
     selectedShip.innerText = shipButton.innerText
   })
 })
+
+winLoseButton.addEventListener('click', () => {
+  reset()
+})
+generateComputerShips()

@@ -85,10 +85,14 @@ section div {
 
 .orientation-button{
   width: 110px;
-  height: 50px;
+  height: 80px;
   border: none;
   margin-top: -35px;
   padding: 0;
+}
+
+i{
+  font-size: 50px;
 }
 
 .ship-list{
