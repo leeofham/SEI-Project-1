@@ -41,6 +41,8 @@ let computerHit = 0
 let lastCompShotHit = false
 let compShotIndex
 let lastHit
+let vector
+let nextShot
 
 // CREATE GRID
 for(let i = 0; i<width ** 2; i++){
@@ -260,6 +262,7 @@ function updateIfDestroyed(row){
     lastCompShotHit = false
     computerHitArray = []
     bang.pause()
+    splash.pause()
     oof.play()
   } else {
     gameMessage.innerText = ''
@@ -307,16 +310,31 @@ function computerShotIndex(){
   }
 }
 
+
+
 function compTurn(compShotIndex){
   if(computerShotArray.includes(compShotIndex)){
-    computerShotIndex()
+    if(lastCompShotHit){
+      estimatedGuess()
+    } else {
+      lastCompShotHit = false
+      computerShotIndex()
+    }
+
   } else{
     computerShotArray.push(compShotIndex)
     hitOrMiss(grid1, compShotIndex)
   }
 }
 
+function goBackToFirstHit(){
+  vector = -vector
+  nextShot = computerHitArray[0] + vector
+  compTurn(nextShot)
+}
+
 function estimatedGuess(){
+
   if(lastHit === 0) possibleLocations = [1, width]
   else if(lastHit === 9) possibleLocations = [-1, width]
   else if(lastHit === 90) possibleLocations = [-width, 1]
@@ -325,13 +343,22 @@ function estimatedGuess(){
   else if(lastHit > 0 && lastHit < 9) possibleLocations = [-1, 1, width]
 
   const possibleLocationsIndex = Math.floor(Math.random() * possibleLocations.length)
-  const nextShot = lastHit + possibleLocations[possibleLocationsIndex]
+  nextShot = lastHit + possibleLocations[possibleLocationsIndex]
 
-  if(possibleLocations.length === 0 || computerShotArray.includes(nextShot)){
-    lastCompShotHit = false
-    computerHitArray = []
-    computerShotIndex()
-  } else{
+  vector = computerHitArray[1] - computerHitArray[0]
+
+  if(vector){
+    if(grid1[lastHit + vector].classList.contains('miss')){
+      goBackToFirstHit()
+    } else if(!grid1[lastHit + vector].classList.contains('miss')){
+      nextShot = lastHit + vector
+      compTurn(nextShot)
+    } else{
+      lastCompShotHit = false
+      computerHitArray = []
+      computerShotIndex()
+    }
+  } else {
     possibleLocations.splice(possibleLocationsIndex, 1)
     compTurn(nextShot)
   }
@@ -373,24 +400,14 @@ function lose(){
   loseAudio.play()
 }
 
-// grab buttons
-grid1.forEach((square1, index) => {
-  square1.addEventListener('click', () => {
-    userPlaceShip(index)
-  })
-  square1.addEventListener('mouseover', () =>{
-    if(!gameInPlay) shipHover(grid1, index)
-  })
-  square1.addEventListener('mouseout', () =>{
-    if(!gameInPlay) shipMouseLeave(grid1, index)
-  })
-})
-
-grid2.forEach((square2, index) => {
-  square2.addEventListener('click', () => {
-    if(gameInPlay)userShot(grid2, index)
-  })
-})
+function placedShipButton(shipButton){
+  const placedShipButton = parseInt(shipButton.value)
+  if(!userShipLength.includes(placedShipButton)){
+    shipButton.innerText = 'Already picked!'
+    shipButton.style.color = '#ffe400'
+    shipButton.disabled = 'true'
+  }
+}
 
 function clearGrid(){
   for(let i = 0; i < 100; i++){
@@ -422,6 +439,25 @@ function reset(){
   generateComputerShips()
 }
 
+// grab buttons
+grid1.forEach((square1, index) => {
+  square1.addEventListener('click', () => {
+    userPlaceShip(index)
+  })
+  square1.addEventListener('mouseover', () =>{
+    if(!gameInPlay) shipHover(grid1, index)
+  })
+  square1.addEventListener('mouseout', () =>{
+    if(!gameInPlay) shipMouseLeave(grid1, index)
+  })
+})
+
+grid2.forEach((square2, index) => {
+  square2.addEventListener('click', () => {
+    if(gameInPlay)userShot(grid2, index)
+  })
+})
+
 button.addEventListener('click', () => {
   if(userShipHorizontal){
     userShipHorizontal = false
@@ -433,15 +469,6 @@ button.addEventListener('click', () => {
     button.innerHTML= '<i class="fas fa-arrows-alt-h"></i> <br> Horizontal'
   }
 })
-
-function placedShipButton(shipButton){
-  const placedShipButton = parseInt(shipButton.value)
-  if(!userShipLength.includes(placedShipButton)){
-    shipButton.innerText = 'Already picked!'
-    shipButton.style.color = '#ffe400'
-    shipButton.disabled = 'true'
-  }
-}
 
 shipButton.forEach(shipButton => {
   shipButton.addEventListener('click', (e) => {
