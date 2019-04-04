@@ -18,6 +18,7 @@ const bang = new Audio('sounds/Explosion.mp3')
 const winAudio = new Audio('sounds/Oh-yeah-sound-effect.mp3')
 const giggity = new Audio('sounds/giggity.mp3')
 const loseAudio = new Audio('sounds/Sad-trombone.mp3')
+const splash = new Audio('sounds/Big-water-splash-sound-effect.mp3')
 
 // Grids
 const grid1 = []
@@ -189,7 +190,7 @@ function hitCounter(grid){
 function hitOrMiss(grid, index){
   if(grid[index].classList.contains('ship')){
     hit(grid, index)
-    hitSounds()
+    hitOrMissSounds('hit')
     checkIfDestroyed(grid, index)
     hitCounter(grid)
   } else if (!grid[index].classList.contains('ship') && !grid[index].classList.contains('hit') || grid[index].classList.contains('no-go')) {
@@ -197,10 +198,17 @@ function hitOrMiss(grid, index){
   }
 }
 
-function hitSounds(){
-  bang.pause()
-  bang.currentTime = 0
-  bang.play()
+function hitOrMissSounds(string){
+  if(string === 'hit'){
+    splash.pause()
+    bang.pause()
+    bang.currentTime = 0
+    bang.play()
+  } else if(string === 'miss'){
+    splash.pause()
+    splash.currentTime = 0
+    splash.play()
+  }
 }
 
 function hit(grid, index){
@@ -219,6 +227,7 @@ function miss(grid, index){
   grid[index].classList.remove('no-go')
   grid[index].classList.add('miss')
   grid[index].innerText = 'X'
+  hitOrMissSounds('miss')
 }
 
 function checkIfDestroyed(grid, index){
