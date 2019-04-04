@@ -167,6 +167,14 @@ button:active {
   color:#cc310b;
 }
 
+.win-lose-reset{
+  font-size: 40px;
+}
+
+.win-lose-reset:hover{
+  color: #ffe400;
+}
+
 .hide{
   display: none;
 }
