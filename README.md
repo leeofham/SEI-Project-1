@@ -35,13 +35,13 @@ _This game is played solely using the mouse_
 
 2. _Once you have laid all your ships, now the game is live._
 
-<img width="1552" alt="Screenshot 2019-04-05 at 09 49 27" src="https://user-images.githubusercontent.com/42970647/55615849-68fb9e00-5788-11e9-944e-978805115ffd.png">
+![Screenshot 2019-04-05 at 09 49 27](https://user-images.githubusercontent.com/42970647/55615849-68fb9e00-5788-11e9-944e-978805115ffd.png)
 
 3. _Click the grid you want to fire at. If that grid is now on fire, you have hit part of the opponents ship. Search all grids around the hit grid square to find and destroy that ship_
 
 ![Screenshot 2019-04-05 at 09 53 02](https://user-images.githubusercontent.com/42970647/55615949-a5c79500-5788-11e9-8e5a-9e6686b14f6b.png)
 
-4. _If the square is now an X, you have missed._
+4. _If the square now contains a X, you have missed._
 
 5. _The first to destroy all their opponents ships wins._
 
@@ -58,7 +58,7 @@ _Time management wise, I had finished the base game fairly quickly but starting 
 1. _The second challenge which I didn't end up finishing was the computer firing logic. At the moment, shots are random but I wanted the computer when it hits one of your ships, to search the squares around it and when it finds the next hit, use that to work out the direction of the laid ship. Despite working on it, I couldn't iron out the bugs in time and had to resort to my backup plan of random shots._
 
 ### Wins
-_The biggest win was completing the game with all the rules in place that I wanted except the computer firing mechanic. It's quite logic heavy with the no-go zones around the ships and the computer firing mechanics where it searches, so at first it was very daunting. I feel like this has solidified my understanding of arrays logic and also has helped me with how I break down problems into small steps. _
+_The biggest win was completing the game with all the rules in place that I wanted except the computer firing mechanic. It's quite logic heavy with the no-go zones around the ships and the computer firing mechanics where it searches, so at first it was very daunting. I feel like this has solidified my understanding of arrays logic and also has helped me with how I break down problems into small steps._
 
 ## Future features
 _I really want to add the computer firing mechanic and I would also like to add some animations to the grids. I am also not 100% set on the colour scheme and minimalistic theme to the page._
