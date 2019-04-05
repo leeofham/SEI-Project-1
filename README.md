@@ -6,8 +6,8 @@
 ## Technologies used
 
 * JavaScript (ES6)
-* HTML5 & HTML5 Audio
-* CSS
+* HTML5
+* CSS & SCSS
 * git
 
 ## Installation
@@ -16,8 +16,6 @@
 1. Open the `index.html` in your browser of choice
 
 ## Overview
-
-_Screen shot_
 
 ![Screenshot 2019-04-05 at 09 46 07](https://user-images.githubusercontent.com/42970647/55615607-b9263080-5787-11e9-8c9e-65526228b685.png)
 
@@ -52,7 +50,7 @@ _This game is played solely using the mouse_
 ## Process
 _I started off just building the grids and getting the click events to work. After a couple days of coding, it soon became apparent that the way I was doing things was very long. So I started out again and found it a lot easier._
 
-_Time management wise, I had finished the base game fairly quickly but starting again was quite annoying, as I had already invested approximately 15 hours into it._
+_Time management wise, I had finished the base game fairly quickly but starting again was quite annoying, as I had already invested approximately 15 hours into it. I also feel I could have managed my time better by not committing so much time to the computer firing mechanics and focussed on other things. Style wise the page is very minimalistic and to the point, but I feel it could have extra things._
 
 ### Challenges
 1. _There was a lot of little challenges brought up by this project. However, the first main challenge was finding a way to lay the ships out with the zones around them. Both user and computer had to abide by these rules._
@@ -63,4 +61,4 @@ _Time management wise, I had finished the base game fairly quickly but starting 
 _The biggest win was completing the game with all the rules in place that I wanted except the computer firing mechanic. It's quite logic heavy with the no-go zones around the ships and the computer firing mechanics where it searches, so at first it was very daunting. I feel like this has solidified my understanding of arrays logic and also has helped me with how I break down problems into small steps. _
 
 ## Future features
-_I really want to add the computer firing mechanic and I would also like to add some animations._
+_I really want to add the computer firing mechanic and I would also like to add some animations to the grids. I am also not 100% set on the colour scheme and minimalistic theme to the page._
