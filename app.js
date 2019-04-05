@@ -25,24 +25,24 @@ const grid1 = []
 const grid2 = []
 
 let shipLocations = []
-const computerShotArray = []
+let computerShotArray = []
 
 const compShipLength = [5, 4, 3, 3, 2]
 let userShipLength = [5, 4, 3, 3, 2]
 let shipIndexes
-let computerHitArray = []
-let possibleLocations = [-width, -1, 1, width]
+// let computerHitArray = []
+// let possibleLocations = [-width, -1, 1, width]
 let gameInPlay
 let userShipHorizontal = true
 let length
 let userOrientation = 1
 let userHit = 0
 let computerHit = 0
-let lastCompShotHit = false
+// let lastCompShotHit = false
 let compShotIndex
-let lastHit
-let vector
-let nextShot
+// let lastHit
+// let vector
+// let nextShot
 
 // CREATE GRID
 for(let i = 0; i<width ** 2; i++){
@@ -185,8 +185,9 @@ function hitCounter(grid){
   if(grid === grid1) computerHit = computerHit + 1
   else userHit = userHit + 1
 
-  if(userHit === total) win(userHit)
+  if(userHit === total) win()
   else if(computerHit === total) lose()
+  else if(userHit === total && computerHit === total) win()
 }
 
 function hitOrMiss(grid, index){
@@ -216,13 +217,13 @@ function hitOrMissSounds(string){
 function hit(grid, index){
   grid[index].classList.remove('ship')
   grid[index].classList.add('hit')
-  if(grid === grid1) {
-    lastCompShotHit = true
-    lastHit = index
-    computerHitArray.push(index)
-    console.log(computerHitArray)
-    resetPossibleLocations()
-  }
+  // if(grid === grid1) {
+  //   // lastCompShotHit = true
+  //   // lastHit = index
+  //   // computerHitArray.push(index)
+  //   // console.log(computerHitArray)
+  //   resetPossibleLocations()
+  // }
 }
 
 function miss(grid, index){
@@ -259,8 +260,8 @@ function searchShipArrays(grid, index, row, length){
 function updateIfDestroyed(row){
   if(shipLocations[row].length === 0){
     gameMessage.innerText = 'Ship Destroyed!'
-    lastCompShotHit = false
-    computerHitArray = []
+    // lastCompShotHit = false
+    // computerHitArray = []
     bang.pause()
     splash.pause()
     oof.play()
@@ -301,72 +302,64 @@ function userShot(grid, index){
 
 // COMPUTER FUNCTIONS
 // Computer shot functions
-
 function computerShotIndex(){
-  if(lastCompShotHit) estimatedGuess()
-  else{
-    compShotIndex = Math.floor(Math.random() * 100)
-    compTurn(compShotIndex)
-  }
+  // if(lastCompShotHit) estimatedGuess()
+  // else{
+  compShotIndex = Math.floor(Math.random() * 100)
+  compTurn(compShotIndex)
 }
-
-
+// }
 
 function compTurn(compShotIndex){
   if(computerShotArray.includes(compShotIndex)){
-    if(lastCompShotHit){
-      estimatedGuess()
-    } else {
-      lastCompShotHit = false
-      computerShotIndex()
-    }
-
+    // lastCompShotHit = false
+    computerShotIndex()
   } else{
     computerShotArray.push(compShotIndex)
     hitOrMiss(grid1, compShotIndex)
   }
 }
+//
+// function goBackToFirstHit(){
+//   vector = -vector
+//   nextShot = computerHitArray[0] + vector
+//   compTurn(nextShot)
+// }
+//
+// function estimatedGuess(){
+//
+//   if(lastHit === 0) possibleLocations = [1, width]
+//   else if(lastHit === 9) possibleLocations = [-1, width]
+//   else if(lastHit === 90) possibleLocations = [-width, 1]
+//   else if(lastHit === 99) possibleLocations = [-width, -1]
+//   else if(lastHit > 90 && lastHit < 99) possibleLocations = [-width, -1, 1]
+//   else if(lastHit > 0 && lastHit < 9) possibleLocations = [-1, 1, width]
+//
+//   const possibleLocationsIndex = Math.floor(Math.random() * possibleLocations.length)
+//
+//   nextShot = lastHit + possibleLocations[possibleLocationsIndex]
+//
+//   vector = computerHitArray[1] - computerHitArray[0]
+//
+//   if(vector){
+//     if(grid1[lastHit + vector].classList.contains('miss') && grid1[lastHit + vector] >= grid1[0] || grid1[lastHit + vector] <= grid1[99]){
+//       goBackToFirstHit()
+//     } else if(!grid1[lastHit + vector].classList.contains('miss') && grid1[lastHit + vector] >= grid1[0] || grid1[lastHit + vector] <= grid1[99]){
+//       nextShot = lastHit + vector
+//       compTurn(nextShot)
+//     } else{
+//       computerHitArray = []
+//       computerShotIndex()
+//     }
+//   } else {
+//     possibleLocations.splice(possibleLocationsIndex, 1)
+//     compTurn(nextShot)
+//   }
+// }
 
-function goBackToFirstHit(){
-  vector = -vector
-  nextShot = computerHitArray[0] + vector
-  compTurn(nextShot)
-}
-
-function estimatedGuess(){
-
-  if(lastHit === 0) possibleLocations = [1, width]
-  else if(lastHit === 9) possibleLocations = [-1, width]
-  else if(lastHit === 90) possibleLocations = [-width, 1]
-  else if(lastHit === 99) possibleLocations = [-width, -1]
-  else if(lastHit > 90 && lastHit < 99) possibleLocations = [-width, -1, 1]
-  else if(lastHit > 0 && lastHit < 9) possibleLocations = [-1, 1, width]
-
-  const possibleLocationsIndex = Math.floor(Math.random() * possibleLocations.length)
-  nextShot = lastHit + possibleLocations[possibleLocationsIndex]
-
-  vector = computerHitArray[1] - computerHitArray[0]
-
-  if(vector){
-    if(grid1[lastHit + vector].classList.contains('miss')){
-      goBackToFirstHit()
-    } else if(!grid1[lastHit + vector].classList.contains('miss')){
-      nextShot = lastHit + vector
-      compTurn(nextShot)
-    } else{
-      lastCompShotHit = false
-      computerHitArray = []
-      computerShotIndex()
-    }
-  } else {
-    possibleLocations.splice(possibleLocationsIndex, 1)
-    compTurn(nextShot)
-  }
-}
-
-function resetPossibleLocations(){
-  possibleLocations = [-width, -1, 1, width]
-}
+// function resetPossibleLocations(){
+//   possibleLocations = [-width, -1, 1, width]
+// }
 
 function hideThingsOnWin(){
   section1.classList.toggle('hide')
@@ -383,7 +376,6 @@ function winSpecialEffects(){
   setTimeout(() => {
     winAudio.play()
   }, 1400)
-
 }
 
 function win(){
@@ -426,7 +418,6 @@ function clearGrid(){
 }
 
 function reset(){
-  gameInPlay = false
   clearGrid()
   hideThingsOnWin()
   hideThingsOnStart()
@@ -434,6 +425,7 @@ function reset(){
   shipIndexes = []
   shipLocations = []
   userShipLength = [5, 4, 3, 3, 2]
+  computerShotArray = []
   userHit = 0
   computerHit = 0
   generateComputerShips()
