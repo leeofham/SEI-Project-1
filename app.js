@@ -15,7 +15,6 @@ const width = 10
 // Audio
 const oof = new Audio('sounds/Roblox-death-sound.mp3')
 const bang = new Audio('sounds/Explosion.mp3')
-const winAudio = new Audio('sounds/Oh-yeah-sound-effect.mp3')
 const giggity = new Audio('sounds/giggity.mp3')
 const loseAudio = new Audio('sounds/Sad-trombone.mp3')
 const splash = new Audio('sounds/Big-water-splash-sound-effect.mp3')
@@ -373,9 +372,6 @@ function winSpecialEffects(){
   setTimeout(() => {
     giggity.play()
   }, 500)
-  setTimeout(() => {
-    winAudio.play()
-  }, 1400)
 }
 
 function win(){
